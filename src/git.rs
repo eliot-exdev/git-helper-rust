@@ -1,12 +1,20 @@
+use regex::Regex;
 use std::env;
+use std::fs::read_to_string;
 use std::path::Path;
-use std::process::{exit, Command};
+use std::process::exit;
+use std::process::Command;
 
 pub struct GitModule {
     pub name: String,
     pub path: String,
     pub branch: String,
     pub submodules: Vec<GitModule>,
+}
+
+struct GitSubmodule {
+    pub name: String,
+    pub path: String,
 }
 
 impl GitModule {
@@ -19,13 +27,18 @@ impl GitModule {
         }
     }
 
-    pub fn print(&self) {
-        println!(
-            "name:\t {}\nbranch:\t {}\npath:\t {}\nsubmodules:",
-            self.name, self.branch, self.path
-        );
+    pub fn print(&self, filter_branch: &String) {
+        if filter_branch.is_empty() || filter_branch.eq(&self.branch) {
+            if self.name.ne("root") {
+                println!("---");
+            }
+            println!(
+                "name:\t {}\nbranch:\t {}\npath:\t {}",
+                self.name, self.branch, self.path
+            );
+        }
         for it in self.submodules.iter() {
-            it.print();
+            it.print(filter_branch);
         }
     }
 }
@@ -40,7 +53,7 @@ pub fn read_git_module(name: String, path: String, recursive: bool) -> GitModule
     }
 
     module.name = name;
-    module.path = path;
+    module.path = path.clone();
 
     let res = Command::new("git")
         .arg("branch")
@@ -55,6 +68,49 @@ pub fn read_git_module(name: String, path: String, recursive: bool) -> GitModule
         .expect("could not parse git output")
         .trim()
         .to_string();
+    if module.branch.is_empty() {
+        module.branch = String::from("detached");
+    }
+
+    // submodules
+    if recursive {
+        let mut gitmodules_path = path.clone();
+        gitmodules_path.push_str("/.gitmodules");
+        if Path::new(gitmodules_path.as_str()).exists() {
+            let submodule_reg = Regex::new("\\[submodule \"(.+)\"\\]").unwrap();
+            let path_reg = Regex::new("path = (.+)").unwrap();
+            let mut found_submodules: Vec<GitSubmodule> = Vec::new();
+
+            for line in read_to_string(&gitmodules_path).unwrap().lines() {
+                let submodule = submodule_reg.captures(line);
+
+                if submodule.is_some() {
+                    found_submodules.push(GitSubmodule {
+                        name: String::from(submodule.unwrap().get(1).unwrap().as_str()),
+                        path: String::from(""),
+                    });
+                } else {
+                    let path_res = path_reg.captures(line);
+
+                    if path_res.is_some() {
+                        found_submodules.last_mut().unwrap().path =
+                            String::from(path_res.unwrap().get(1).unwrap().as_str());
+                    }
+                }
+            }
+
+            for it in found_submodules {
+                if !it.name.is_empty() && !it.path.is_empty() {
+                    let mut absolue_path = path.clone();
+                    absolue_path.push('/');
+                    absolue_path.push_str(&it.path);
+                    module
+                        .submodules
+                        .push(read_git_module(it.name, absolue_path, recursive));
+                }
+            }
+        }
+    }
 
     return module;
 }

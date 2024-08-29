@@ -1,6 +1,16 @@
 [package]
-name = "git_helper"
+name = "git-helper"
 version = "0.1.0"
 edition = "2021"
+about = "Tiny git helpers."
+description = "Tiny git helpers."
+license = "closed source"
+authors = ["Andre Geisler <andre.geisler@keysight.com>"]
+readme = "README.md"
+keywords = ["git", "tool", "cmd"]
+
+[pack]
 
 [dependencies]
+clap = { version = "4.5.16", features = ["derive"] }
+regex = "1.10.6"
