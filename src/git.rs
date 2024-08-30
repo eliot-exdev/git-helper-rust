@@ -17,6 +17,18 @@ struct GitSubmodule {
     pub path: String,
 }
 
+fn filter_module(git_module: &GitModule, filter_branch: &String) -> bool {
+    if filter_branch.is_empty() {
+        return true;
+    }
+    if filter_branch.starts_with('!') {
+        let str = filter_branch[1..filter_branch.len()].to_string();
+        return str != git_module.branch;
+    }
+
+    return filter_branch == &git_module.branch;
+}
+
 impl GitModule {
     pub fn new() -> Self {
         GitModule {
@@ -28,8 +40,9 @@ impl GitModule {
     }
 
     pub fn print(&self, filter_branch: &String) {
-        if filter_branch.is_empty() || filter_branch.eq(&self.branch) {
-            if self.name.ne("root") {
+        let res = filter_module(self, filter_branch);
+        if res {
+            if self.name != "root" {
                 println!("---");
             }
             println!(
