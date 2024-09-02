@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::env;
+use std::fs;
 use std::fs::read_to_string;
 use std::path::Path;
 use std::process::exit;
@@ -56,13 +57,27 @@ impl GitModule {
     }
 }
 
-pub fn read_git_module(name: String, path: String, recursive: bool) -> GitModule {
+pub fn read_git_module(name: String, mut path: String, recursive: bool) -> GitModule {
     let mut module = GitModule::new();
 
     // change working dir
     {
-        let path = Path::new(path.as_str());
-        assert!(env::set_current_dir(&path).is_ok()); // TODO: check result and fail if does not work
+        let p = Path::new(path.as_str());
+        if !p.exists() {
+            panic!("path does not exist");
+        }
+        if !p.is_dir() {
+            panic!("path is not a dreictory");
+        }
+        if p.is_relative() {
+            let mut pp = env::current_dir().expect("could not get current dir");
+            pp = pp.join(path.clone());
+            let ppp = fs::canonicalize(pp).expect("could not get absolute path");
+            assert!(env::set_current_dir(&ppp).is_ok());
+            path = String::from(ppp.as_path().to_str().expect(""));
+        } else {
+            assert!(env::set_current_dir(&p).is_ok()); // TODO: check result and fail if does not work
+        }
     }
 
     module.name = name;
