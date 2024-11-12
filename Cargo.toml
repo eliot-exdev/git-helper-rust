@@ -12,5 +12,5 @@ keywords = ["git", "tool", "cmd"]
 strip = "symbols"
 
 [dependencies]
-clap = { version = "4.5.16", features = ["derive"] }
-regex = "1.10.6"
+clap = { version = "4.5.20", features = ["derive"] }
+regex = "1.11.1"
