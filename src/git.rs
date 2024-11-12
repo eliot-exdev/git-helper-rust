@@ -27,7 +27,7 @@ fn filter_module(git_module: &GitModule, filter_branch: &String) -> bool {
         return str != git_module.branch;
     }
 
-    return filter_branch == &git_module.branch;
+    filter_branch == &git_module.branch
 }
 
 impl GitModule {
@@ -67,7 +67,7 @@ pub fn read_git_module(name: String, mut path: String, recursive: bool) -> GitMo
             panic!("path does not exist");
         }
         if !p.is_dir() {
-            panic!("path is not a dreictory");
+            panic!("path is not a directory");
         }
         if p.is_relative() {
             let mut pp = env::current_dir().expect("could not get current dir");
@@ -140,5 +140,5 @@ pub fn read_git_module(name: String, mut path: String, recursive: bool) -> GitMo
         }
     }
 
-    return module;
+    module
 }

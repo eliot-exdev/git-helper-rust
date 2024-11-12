@@ -25,7 +25,7 @@ struct Args {
     filter: String,
     /// Crawl all submodules
     #[arg(short = 'r', long = "recursive", default_value_t = false)]
-    recursiv: bool,
+    recursive: bool,
 }
 
 fn main() {
@@ -33,7 +33,7 @@ fn main() {
 
     match args.command {
         Commands::LIST => {
-            let git_module = read_git_module(String::from("root"), args.path, args.recursiv);
+            let git_module = read_git_module(String::from("root"), args.path, args.recursive);
             git_module.print(&args.filter);
         }
     }
