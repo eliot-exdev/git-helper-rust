@@ -20,7 +20,7 @@ struct Args {
     #[arg(short = 'c', long = "command")]
     #[clap(value_enum, default_value_t=Commands::LIST)]
     command: Commands,
-    /// Filter branches
+    /// Filter branches. Use '!' at the beginning for unequal
     #[arg(short = 'f', long = "filter", default_value = "")]
     filter: String,
     /// Crawl all submodules
