@@ -1,6 +1,7 @@
 use clap::Parser;
 use clap::ValueEnum;
 use git::read_git_module;
+use std::process::exit;
 
 mod git;
 
@@ -36,4 +37,5 @@ fn main() {
             git_module.print(&args.filter);
         }
     }
+    exit(0);
 }

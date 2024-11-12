@@ -61,8 +61,8 @@ pub fn read_git_module(name: String, path: String, recursive: bool) -> GitModule
         .output()
         .expect("could not execute git");
     if !res.status.success() {
-        println!("res {:?}", res.status.code());
-        exit(0);
+        println!("git failed: {}", res.status.code().unwrap());
+        exit(1);
     }
     module.branch = String::from_utf8(res.stdout)
         .expect("could not parse git output")
