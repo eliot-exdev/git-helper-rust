@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Tiny git helpers."
 license = "closed source"
-authors = ["Andre Geisler <andre.geisler@keysight.com>"]
+authors = ["Andre Geisler <andre@exdev.de>"]
 readme = "README.md"
 keywords = ["git", "tool", "cmd"]
 
